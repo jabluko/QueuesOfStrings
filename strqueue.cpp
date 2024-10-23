@@ -6,9 +6,18 @@ extern "C" {
 #include <cstddef>
 #include <vector>
 
-vector <vector <string>> container;
-vector <bool> deleted;
-queue <unsigned long> reusable;
+namespace 
+{
+    // TO DO: avoid static initialization order fiasco.
+    vector <vector <string>> container;
+    vector <bool> deleted;
+    queue <unsigned long> reusable;
+
+    bool queue_exists(unsigned long id)
+    {
+        return id < container.size() && !deleted[id];
+    }
+}
 
 unsigned long strqueue_new() {
     if (reusable.empty()) {
@@ -23,7 +32,7 @@ unsigned long strqueue_new() {
 }
 
 void strqueue_delete(unsigned long id) {
-    if (id >= container.size() || deleted[id] == true) return;
+    if (!queue_exists()) return;
     container[id].clear();
     deleted[id] = true;
     reusable.push(id);
@@ -50,7 +59,7 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 }
 
 void strqueue_clear(unsigned long id) {
-    if (id >= container.size() || deleted[id] == true) return;
+    if (!queue_exists(id)) return;
     container[id].clear();
 }
 
