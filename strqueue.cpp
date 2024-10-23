@@ -86,9 +86,7 @@ unsigned long strqueue_new() {
 }
 
 void strqueue_delete(unsigned long id) {
-    if constexpr (debug) {
-        log_call(id);
-    }
+    log_call(id);
 
     if (id >= container.size() || deleted[id] == true) {
         log_error("there is no queue of index"+std::to_string(id));
@@ -103,40 +101,88 @@ void strqueue_delete(unsigned long id) {
 }
 
 size_t strqueue_size(unsigned long id) {
-    if (id >= container.size()) return 0;
+    log_call();
+
+    if (id >= container.size()) {
+        log_returns(0);
+        return 0;
+    }
+    
+    log_returns(container[id].size());
     return container[id].size(); 
 }
 
 void strqueue_insert_at(unsigned long id, size_t position, const char* str) {
-    if constexpr (debug) {
-        std::cerr << "strqueue_insert_at(" << id << ", " << 0, "a")d " << id << std::endl;
-    }
+    log_call(id, position, std::string(str));
 
-    if (id >= container.size() || position > container[id].size() || str == NULL) return;
+    if (id >= container.size() || deleted[id]) {
+        log_error("queue " + std::to_string(id) + " does not exist");
+        return;
+    }
+    if (str == NULL) {
+        log_error("failed");
+        return;
+    }
     container[id].insert(container[id].begin() + position, str);
+
+    log_returns();
 }
 
 void strqueue_remove_at(unsigned long id, size_t position) {
-    if (id >= container.size() || position >= container[id].size()) return;
+    log_call(id, position);
+
+    if (id >= container.size() || position >= container[id].size()) {
+        log_error("queue " + std::to_string(id) + "does not exist");
+        return;
+    }
     container[id].erase(container[id].begin() + position);
+
+    log_returns();
 }
 
 const char* strqueue_get_at(unsigned long id, size_t position) {
-    if (id >= container.size() || position >= container[id].size()) return NULL;
-    return container[id][position];
+    if (id >= container.size() || position >= container[id].size()) {
+        log_error("queue " + std::to_string(id) + "does not exist");
+        log_returns("NULL");
+        return NULL;
+    }
+
+    if (container[id].size() <= position) {
+        log_error("queue " + std::to_string(id) + 
+            "does not contain string at position" + std::to_string(position));
+        log_returns("NULL");
+        return NULL;
+    }
+
+    log_returns(container[id][position]);
+    return container[id][position].data();
 }
 
 void strqueue_clear(unsigned long id) {
-    if (id >= container.size() || deleted[id] == true) return;
+    log_call(id);
+
+    if (id >= container.size() || deleted[id] == true) {
+        log_error("queue " + std::to_string(id) + "does not exist");
+        return;
+    }
     container[id].clear();
+    
+    log_returns();
 }
 
 int strqueue_comp(unsigned long id1, unsigned long id2) {
-    if (container[id1] < container[id2]) return -1;
-    else if (container[id1] == container[id2]) return 0;
-    return 1;
-}
+    log_call(id1, id2);
 
-#ifdef __cplusplus
+    if (container[id1] < container[id2]) {
+        log_returns(-1);
+        return -1;
+    }
+    else if (container[id1] == container[id2]) {
+        log_returns(0);
+        return 0;
+    }
+    else {
+        log_returns(1);
+        return 1;
+    }
 }
-#endif
