@@ -6,14 +6,13 @@ extern "C" {
 #include <cstddef>
 #include <vector>
 
-vector <vector <const char*>> container;
+vector <vector <string>> container;
 vector <bool> deleted;
 queue <unsigned long> reusable;
 
 unsigned long strqueue_new() {
     if (reusable.empty()) {
-        vector <const char*> empty_vector;
-        container.push_back (empty_vector);
+        container.push_back ({});
         deleted.push_back (false);
         return container.size() - 1;
     }
