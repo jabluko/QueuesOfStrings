@@ -63,9 +63,18 @@ namespace
     #define log_error(...) _log_error(__func__ __VA_OPT__(,) __VA_ARGS__)
 }
 
-vector <vector <string>> container;
-vector <bool> deleted;
-queue <unsigned long> reusable;
+namespace 
+{
+    // TO DO: avoid static initialization order fiasco.
+    vector <vector <string>> container;
+    vector <bool> deleted;
+    queue <unsigned long> reusable;
+
+    bool queue_exists(unsigned long id)
+    {
+        return id < container.size() && !deleted[id];
+    }
+}
 
 unsigned long strqueue_new() {
     log_call();
@@ -88,11 +97,11 @@ unsigned long strqueue_new() {
 void strqueue_delete(unsigned long id) {
     log_call(id);
 
-    if (id >= container.size() || deleted[id] == true) {
+    if (!queue_exists()) {
         log_error("there is no queue of index"+std::to_string(id));
         return;
     }
-
+  
     container[id].clear();
     deleted[id] = true;
     reusable.push(id);
@@ -161,10 +170,11 @@ const char* strqueue_get_at(unsigned long id, size_t position) {
 void strqueue_clear(unsigned long id) {
     log_call(id);
 
-    if (id >= container.size() || deleted[id] == true) {
+    if (!queue_exists(id)) {
         log_error("queue " + std::to_string(id) + "does not exist");
         return;
     }
+  
     container[id].clear();
     
     log_returns();
