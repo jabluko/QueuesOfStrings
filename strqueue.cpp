@@ -6,8 +6,6 @@ extern "C" {
 #include <cstddef>
 #include <vector>
 
-using namespace std;
-
 vector <vector <const char*>> container;
 vector <bool> deleted;
 queue <unsigned long> reusable;
