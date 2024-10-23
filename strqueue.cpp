@@ -5,12 +5,23 @@ extern "C" {
 #include <queue>
 #include <cstddef>
 #include <vector>
+#include <iostream>
+
+#ifdef NDEBUG
+constexpr bool DEBUG = true;
+#else
+constexpr bool DEBUG = false;
+#endif
 
 vector <vector <string>> container;
 vector <bool> deleted;
 queue <unsigned long> reusable;
 
 unsigned long strqueue_new() {
+    if constexpr (DEBUG) {
+        std::cerr << "strqueue_new()" << std::endl;
+    }
+
     if (reusable.empty()) {
         container.push_back ({});
         deleted.push_back (false);
@@ -19,14 +30,33 @@ unsigned long strqueue_new() {
     unsigned long new_id = reusable.front();
     reusable.pop();
     deleted[new_id] = false;
+
+    if constexpr (DEBUG) {
+    std::cerr << "strqueue_new returns " << new_id << std::endl;
+    }
+
     return new_id;
 }
 
 void strqueue_delete(unsigned long id) {
-    if (id >= container.size() || deleted[id] == true) return;
+    if constexpr (DEBUG) {
+    std::cerr << "strqueue_delete(" << id << ")" << std::endl;
+    }
+
+    if (id >= container.size() || deleted[id] == true) {
+        if constexpr (DEBUG) {
+        std::cerr << "strqueue_delete: there is no queue of id " << id << std::endl;
+    }
+        return;
+    }
+
     container[id].clear();
     deleted[id] = true;
     reusable.push(id);
+
+    if constexpr (DEBUG) {
+    std::cerr << "strqueue_delete done" << std::endl;
+    }
 }
 
 size_t strqueue_size(unsigned long id) {
